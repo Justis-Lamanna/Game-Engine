@@ -8,6 +8,7 @@ package GameView.GameMode;
 import GameModel.GameModel;
 import GameView.Paintable;
 import GameView.ViewMode;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 /**
@@ -165,80 +166,25 @@ public class Mode0 implements ViewMode
     {
         if(game != null){game.onFrame();}
         BufferedImage frame = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
-        BufferedImage[] fLayers = new BufferedImage[layers.length];
-        for(int layer = 0; layer < fLayers.length; layer++){
-            fLayers[layer] = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
-            paint(fLayers[layer], layers[layer]); //Paint the background.
-        }
+        Graphics2D gfx = frame.createGraphics();
+        int lastLayer = -1;
         for(PaintProperties sprite : sprites)
         {
-            paint(fLayers[(int)sprite.getPriority()], sprite);
-        }
-        //We have some BufferedImages that need to be combined.
-        for(int xx = 0; xx < frame.getWidth(); xx++)
-        {
-            for(int yy = 0; yy < frame.getHeight(); yy++)
+            int spriteLayer = (int)sprite.getPriority();
+            if(spriteLayer != lastLayer)
             {
-                int rgb = -1; //Transparent.
-                for(int layer = 0; layer < fLayers.length; layer++)
-                {
-                    rgb = fLayers[layer].getRGB(xx, yy);
-                    if(rgb != -1){break;}
+                lastLayer = spriteLayer;
+                PaintProperties bg = layers[lastLayer];
+                if(bg != null && bg.isVisible()){
+                    Paintable bgP = bg.getPaintable();
+                    gfx.drawImage(bgP.getImage(), new RenderOp(bg), bgP.getX(), bgP.getY());
                 }
-                frame.setRGB(xx, yy, rgb);
+            }
+            if(sprite.isVisible()){
+                Paintable spriteP = sprite.getPaintable();
+                gfx.drawImage(spriteP.getImage(), new RenderOp(sprite), spriteP.getX(), spriteP.getY());
             }
         }
         return frame;
-    }
-    
-    //Paints a Paintable onto a background based on its PaintProperties.
-    private void paint(BufferedImage bg, PaintProperties prop)
-    {
-        if(bg == null || prop == null || !prop.isVisible()){return;}
-        Paintable img = prop.getPaintable();
-        int x = img.getX();
-        int y = img.getY();
-        BufferedImage image = img.getImage();
-        for(int xx = 0; xx < image.getWidth(); xx++)
-            for(int yy = 0; yy < image.getHeight(); yy++)
-            {
-                if(image.getRGB(xx, yy) == prop.getTransparentRGB()){continue;}
-                if(prop.isWrapped())
-                {
-                    blend(bg, Math.floorMod(x+xx, bg.getWidth()), Math.floorMod(y+yy, bg.getHeight()), prop, xx, yy);
-                }
-                else if(x+xx >= 0 && x+xx < bg.getWidth() && y+yy >= 0 && y+yy < bg.getHeight()){
-                    blend(bg, x+xx, y+yy, prop, xx, yy);
-                }
-            }
-    }
-    
-    private void blend(BufferedImage bg, int bgx, int bgy, PaintProperties prop, int px, int py)
-    {
-        if(prop.isSemiTransparent())
-        {
-            int bgRGB = bg.getRGB(bgx, bgy);
-            double bgA = ((bgRGB & 0xFF000000) >>> 24) / 255f;
-            int bgR = (bgRGB & 0xFF0000) >>> 16;
-            int bgG = (bgRGB & 0xFF00) >>> 8;
-            int bgB = (bgRGB & 0xFF);
-            //
-            int pRGB = prop.getPaintable().getImage().getRGB(px, py);
-            double pA = ((pRGB & 0xFF000000) >>> 24) / 255f;
-            int pR = (pRGB & 0xFF0000) >>> 16;
-            int pG = (pRGB & 0xFF00) >>> 8;
-            int pB = (pRGB & 0xFF);
-            //
-            double newA = pA + bgA * (1 - pA);
-            int newR = (int)((pR * pA + bgR * bgA * (1 - pA)) / newA);
-            int newG = (int)((pG * pA + bgG * bgA * (1 - pA)) / newA);
-            int newB = (int)((pB * pA + bgB * bgA * (1 - pA)) / newA);
-            int newRGB = ((int)(newA * 255) << 24) | (newR << 16) | (newG << 8) | newB;
-            bg.setRGB(bgx, bgy, newRGB);
-        }
-        else
-        {
-            bg.setRGB(bgx, bgy, prop.getPaintable().getImage().getRGB(px, py));
-        }
     }
 }

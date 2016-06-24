@@ -29,7 +29,9 @@ import java.awt.Color;
  * <li>Visibility - Whether this Paintable should be shown or hidden from view.
  * By default, this is true.</li>
  * <li>Wrap - Whether this Paintable should be clipped to the screen size, or
- * wrap around the screen to the other side. By default, this is false.</li>
+ * wrap around the screen to the other side. By default, this is false.
+ * Due to the change to Graphics2D, wrapping only works for backgrounds; if
+ * used on a sprite, weird things happen.</li>
  * <li>Background Color - The color of the Paintable's background. It is easier
  * to create Paintables, and designate some color as the "transparent" color.
  * This color is essentially ignored when it is encountered during screen render.
@@ -63,7 +65,7 @@ public class PaintProperties implements Comparable
     {
         this.value = value;
         this.priority = priority;
-        this.bgColor = value.getImage().getRGB(0, 0);
+        setTransparentRGB(null);
     }
     
     /**
@@ -143,14 +145,18 @@ public class PaintProperties implements Comparable
     /**
      * Gets the semitransparency of this sprite.
      * @return True if the image is semitransparent.
+     * @deprecated Semitransparency is now handled by the Graphics2D library.
      */
+    @Deprecated
     public boolean isSemiTransparent(){return semitransparent;}
     
     /**
      * Sets the semitransparency of this sprite.
      * @param st True if the image should be semitransparent.
      * @return The instance of this PaintProperties.
+     * @deprecated Semitransparency is now handled by the Graphics2D library.
      */
+    @Deprecated
     public PaintProperties isSemiTransparent(boolean st){semitransparent = st; return this;}
 
     //This is so the SortedList can handle it.
