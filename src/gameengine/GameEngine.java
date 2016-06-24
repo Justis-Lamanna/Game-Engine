@@ -8,6 +8,7 @@ package gameengine;
 import GameController.KeyController;
 import GameModel.AbstractGame;
 import Examples.ExampleGame;
+import Examples.Mode7Mode;
 import GameView.GameMode.Mode0;
 import GameView.GameView;
 import java.awt.Dimension;

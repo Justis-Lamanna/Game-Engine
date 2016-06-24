@@ -31,24 +31,17 @@ import javax.imageio.ImageIO;
  */
 public class Mode7Mode implements ViewMode
 {
-    private BufferedImage img = null;
-    private int mod = 0;
+    private final ViewMode view;
     
-    public Mode7Mode(String fname)
+    public Mode7Mode(ViewMode view)
     {
-        try
-        {
-            img = ImageIO.read(new File(fname));
-        } catch (IOException ex) {
-            System.err.println(ex);
-        }
+        this.view = view;
     }
     
     @Override
     public BufferedImage getFrame()
     {
-        BufferedImage timg = new ImageOp(img)
-                .rotateDegrees(512, 512, mod++)
+        BufferedImage timg = new ImageOp(view.getFrame())
                 .apply(new Mode7Function());
         return timg;
     }
@@ -59,8 +52,8 @@ public class Mode7Mode implements ViewMode
         @Override
         public double[][] apply(int index)
         {
-            double[][] translate = MatrixFunction.translateAffine(256 - index / 2f, 1);
-            double[][] scale = MatrixFunction.scaleAffine(0.5 + index / 1024f, 1);
+            double[][] translate = MatrixFunction.translateAffine(80 - index / 2f, 1);
+            double[][] scale = MatrixFunction.scaleAffine(0.5 + index / 240f, 1);
             return MatrixFunction.multiplyAffine(translate, scale);
         }
         

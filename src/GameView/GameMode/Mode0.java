@@ -17,6 +17,8 @@ import java.awt.image.BufferedImage;
  * a paintable, simply use the {@code setPaintable(Paintable, double)} method.
  * <p>Priorities dictate the order of painting, which goes from lowest to 
  * highest priority; i.e., Higher priorities are placed above lower priorities.
+ * In the case of identical priorities, the one more recently added has
+ * a lower priority than older ones.
  * @author Justis
  */
 public class Mode0 implements ViewMode
@@ -40,7 +42,7 @@ public class Mode0 implements ViewMode
      * <p>Unfortunately, this is a necessary evil. When the frame is updated,
      * that needs to propagate into the game itself, so it can time itself
      * correctly.
-     * <p>If the GameModel provided is null, nothing happens.
+     * <p>If the GameModel provided is null, game updating is disabled.
      * @param game The game to attach to this mode.
      */
     public void setGame(GameModel game)

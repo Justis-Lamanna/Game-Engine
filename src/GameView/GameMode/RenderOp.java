@@ -13,7 +13,12 @@ import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorModel;
 
 /**
- *
+ * Used to facilitate rendering.
+ * <p>In order to keep the feature of having a dynamic transparency color, this
+ * transforms the image for the Mode0 getFrame() method.
+ * <p>The only method that does anything is the filter() method, which takes the
+ * src image, and copies everything into a new image, sans the transparent color.
+ * All other methods return null.
  * @author Justis
  */
 public class RenderOp implements BufferedImageOp
@@ -28,17 +33,13 @@ public class RenderOp implements BufferedImageOp
     @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dest) {
         BufferedImage image = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-        int imageX = paint.getPaintable().getX();
-        int imageY = paint.getPaintable().getY();
         for(int xx = 0; xx < image.getWidth(); xx++){
             for(int yy = 0; yy < image.getHeight(); yy++){
-                int paintX = xx;
-                int paintY = yy;
                 int color = src.getRGB(xx, yy);
                 if(color == paint.getTransparentRGB()){
                     color = 0;
                 }
-                image.setRGB(paintX, paintY, color);
+                image.setRGB(xx, yy, color);
             }
         }
         return image;

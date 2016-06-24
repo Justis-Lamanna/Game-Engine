@@ -11,6 +11,7 @@ import GameModel.GameTask;
 import GameModel.SpriteAnimations.AnimateTask;
 import GameModel.SpriteAnimations.Animation;
 import GameModel.SpriteAnimations.ChangeFrameAnimation;
+import GameModel.SpriteAnimations.ChangeImageAnimation;
 import GameModel.SpriteAnimations.NoAnimation;
 import GameModel.SpriteAnimations.SetPositionAnimation;
 import GameModel.SpriteAnimations.ShiftPositionAnimation;
@@ -36,7 +37,6 @@ import org.ini4j.Ini;
 public class ExampleGame extends AbstractGame
 {
     private final Mode0 mode;
-    private final Map<String, GameTask> taskMap;
     private final Map<String, BufferedImage> imageMap;
     private final Map<String, Animation[]> animationMap;
     private final KeyController controls;
@@ -64,70 +64,11 @@ public class ExampleGame extends AbstractGame
     public ExampleGame(Mode0 mode)
     {
        this.mode = mode;
-       taskMap = new HashMap<>();
        imageMap = new HashMap<>();
        animationMap = new HashMap<>();
        controls = KeyController.getInstance();
        controls.addControl("up", KeyEvent.VK_W);
        controls.addControl("down", KeyEvent.VK_S);
-    }
-    
-    /**
-     * Add a task.
-     * In order to make it easier for me to describe tasks, I introduced
-     * a mapping system, allowing me to use Strings to describe tasks. If
-     * either the name or the task is null, nothing happens.
-     * @param name The name of the task.
-     * @param task The task to execute each frame.
-     * @param priority The priority of the task.
-     */
-    public void addTask(String name, GameTask task, double priority)
-    {
-        if(name != null && task != null)
-        {
-            taskMap.put(name, task);
-            addTask(task, priority);
-        }
-    }
-    
-    /**
-     * Remove a task.
-     * This lets you use the tasks name to remove it, instead of the
-     * actual task.
-     * @param name The name of the task to remove.
-     */
-    public void removeTask(String name)
-    {
-        removeTask(taskMap.remove(name));
-    }
-    
-    /**
-     * Schedule a task.
-     * See the scheduleTask(GameTask, double) method for an explanation
-     * on scheduling vs. adding.
-     * @param name The name of the task.
-     * @param task The task to schedule.
-     * @param priority The priority of the task.
-     */
-    public void scheduleTask(String name, GameTask task, double priority)
-    {
-        if(name != null && task != null)
-        {
-            taskMap.put(name, task);
-            scheduleTask(task, priority);
-        }
-    }
-    
-    /**
-     * Enable or disable a task.
-     * This lets you use the tasks name to enable or disable it, instead
-     * of the actual task.
-     * @param name The name of the task.
-     * @param enabled True if the task should be enabled, false if not.
-     */
-    public void setTaskEnabled(String name, boolean enabled)
-    {
-        setTaskEnabled(taskMap.get(name), enabled);
     }
     
     /**
@@ -173,6 +114,30 @@ public class ExampleGame extends AbstractGame
         }
     }
     
+    /**
+     * Load animations through an ini file.
+     * The layout of the ini file is explained thusly:
+     * <ul>
+     * <li>Heading: The name of the animation, which can be used to reference
+     * it later.</li>
+     * <li>frames: The number of frames of animation. If this value is not
+     * a number, or less than zero, the animation is skipped entirely.</li>
+     * <li>frame[number]: Specifies the animation for that frame. Counting starts
+     * from 0, and works to frames. If any frame number is omitted, of the frames
+     * don't match any animations, or the parameters fail in some way, a no-
+     * animation is placed instead. The different animations to be used are:
+     * <ul>
+     * <li>setframe: Sets the frame of the Paintable to some value. Takes one
+     * integer as a parameter, which is the frame number to switch to.</li>
+     * <li>setpos: Sets the X-Y position of the Paintable to some values. Takes
+     * two integers as a parameter, the X followed by the Y position.</li>
+     * <li>shiftpos: Moves the Paintable by X number of pixels right, and Y number
+     * of pixels down. Takes two integers as a parameter, the X  followed by the Y.</li>
+     * <li>setimage: Changes the Paintable's image to a new one. Takes one
+     * string as a parameter, which is the name of the image (not the file path!)</li>
+     * </li>
+     * </ul>
+     */
     private void loadAnimations()
     {
         Ini ini;
@@ -185,7 +150,13 @@ public class ExampleGame extends AbstractGame
         Set<String> headings = ini.keySet();
         for(String heading : headings)
         {
-            int qty = Integer.parseInt(ini.get(heading, "frames"));
+            int qty;
+            try{
+                qty = Integer.parseInt(ini.get(heading, "frames"));
+            }
+            catch(NumberFormatException ex){
+                continue;
+            }
             if(qty < 0){continue;}
             Animation[] script = new Animation[qty];
             for(int frame = 0; frame < qty; frame++)
@@ -209,13 +180,17 @@ public class ExampleGame extends AbstractGame
                             param2 = Integer.parseInt(command[2]);
                             script[frame] = new ShiftPositionAnimation(param1, param2);
                             break;
+                        case "setimage":
+                            script[frame] = new ChangeImageAnimation(imageMap.get(command[1]));
                         default:
                             script[frame] = new NoAnimation();
                             break;
                     }
                 }
-                //If the integers fail to parse, or no parameters are supplied,
-                //just automatically go to a no-anim.
+                /*
+                If any integers fail to parse, or constructors throw any exceptions,
+                it becomes a no-animation instead.
+                */
                 catch(Exception ex)
                 {
                     script[frame] = new NoAnimation();
@@ -232,7 +207,7 @@ public class ExampleGame extends AbstractGame
         @Override
         public boolean onFrame(AbstractGame model)
         {
-            AnimateTask manectric = (AnimateTask)taskMap.get("ManectricAnim");
+            AnimateTask manectric = (AnimateTask)getTask("ManectricAnim");
             if(controls.getState("up") == 1)
             {
                 speed += 0.05;
