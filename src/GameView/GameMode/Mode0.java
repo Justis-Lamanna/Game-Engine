@@ -22,7 +22,6 @@ public class Mode0 implements ViewMode
     private static final int WIDTH = 240;
     private static final int HEIGHT = 160;
     
-    protected final PaintProperties[] layers;
     protected final SortedList<PaintProperties> sprites;
     protected GameModel game;
     
@@ -33,29 +32,10 @@ public class Mode0 implements ViewMode
      * <p>Sprites are somewhat more complicated. Each sprite has a priority,
      * which represents which layer the sprite is placed above or below.
      * Within each priority, the most recently added sprite is drawn first.
-     * @param numLayers Number of layers this instance should have.
-     */
-    public Mode0(int numLayers)
-    {
-        if(numLayers < 0){
-            throw new NegativeArraySizeException(
-                    "Negative number of layers provided.");
-        }
-        layers = new PaintProperties[numLayers];
-        sprites = new SortedList<>();
-    }
-    
-    /**
-     * Creates a Mode0 instance.
-     * <p>The number of layers is the default, which is 4. In Mode0, layer 0 is
-     * the top-most layer, with subsequent layers being underneath it.
-     * <p>Sprites are somewhat more complicated. Each sprite has a priority,
-     * which represents which layer the sprite is placed above or below.
-     * Within each priority, the most recently added sprite is drawn first.
      */
     public Mode0()
     {
-        this(DEFAULT_NUMBER_OF_LAYERS);
+        sprites = new SortedList<>();
     }
     
     /**
@@ -69,27 +49,6 @@ public class Mode0 implements ViewMode
     public void setGame(GameModel game)
     {
         this.game = game;
-    }
-    
-    /**
-     * Set a new layer up.
-     * <p>The classical way this mode works is by having a set number of labels.
-     * The lower the layer number, the more covered the layer is.
-     * @param paint
-     * @param priority 
-     * @return The PaintProperties of this newly-added layer.
-     */
-    public PaintProperties setLayer(Paintable paint, int priority)
-    {
-        if(paint == null){
-            throw new NullPointerException("Paintable is null.");
-        }
-        if(priority < 0 || priority >= layers.length){
-            throw new ArrayIndexOutOfBoundsException(
-                    String.format("Priority must be from 0 to %d.", layers.length-1));
-        }
-        layers[priority] = new PaintProperties(paint, priority);
-        return layers[priority];
     }
     
     /**
@@ -107,15 +66,11 @@ public class Mode0 implements ViewMode
      * @param priority The priority of this sprite.
      * @return The PaintProperties of the newly added sprite.
      * @throws NullPointerException The Paintable supplied is null.
-     * @throws ArithmeticException Priority isn't between 0 and the number of layers, or is non-finite.
      */
-    public PaintProperties addSprite(Paintable paint, double priority)
+    public PaintProperties addPaintable(Paintable paint, double priority)
     {
         if(paint == null){
             throw new NullPointerException("Null Paintable specified.");
-        }
-        if(!Double.isFinite(priority) || priority < 0 || priority >= layers.length){
-            throw new ArithmeticException("Invalid priority specified.");
         }
         PaintProperties spriteProperties = new PaintProperties(paint, priority);
         sprites.add(spriteProperties);
@@ -167,19 +122,8 @@ public class Mode0 implements ViewMode
         if(game != null){game.onFrame();}
         BufferedImage frame = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_4BYTE_ABGR);
         Graphics2D gfx = frame.createGraphics();
-        int lastLayer = -1;
         for(PaintProperties sprite : sprites)
         {
-            int spriteLayer = (int)sprite.getPriority();
-            if(spriteLayer != lastLayer)
-            {
-                lastLayer = spriteLayer;
-                PaintProperties bg = layers[lastLayer];
-                if(bg != null && bg.isVisible()){
-                    Paintable bgP = bg.getPaintable();
-                    gfx.drawImage(bgP.getImage(), new RenderOp(bg), bgP.getX(), bgP.getY());
-                }
-            }
             if(sprite.isVisible()){
                 Paintable spriteP = sprite.getPaintable();
                 gfx.drawImage(spriteP.getImage(), new RenderOp(sprite), spriteP.getX(), spriteP.getY());
