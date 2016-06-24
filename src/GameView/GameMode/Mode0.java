@@ -13,12 +13,14 @@ import java.awt.image.BufferedImage;
 
 /**
  * Mode 0 View Mode.
+ * <p>This is a basic mode, which should be sufficient for a simple game. To add
+ * a paintable, simply use the {@code setPaintable(Paintable, double)} method.
+ * <p>Priorities dictate the order of painting, which goes from lowest to 
+ * highest priority; i.e., Higher priorities are placed above lower priorities.
  * @author Justis
  */
 public class Mode0 implements ViewMode
 {  
-    //The number of layers in Mode 0 for GBA.
-    private static final int DEFAULT_NUMBER_OF_LAYERS = 4;
     private static final int WIDTH = 240;
     private static final int HEIGHT = 160;
     
@@ -27,11 +29,6 @@ public class Mode0 implements ViewMode
     
     /**
      * Creates a Mode0 instance.
-     * <p>The number of layers must be specified. In Mode0, layer 0 is
-     * the top-most layer, with subsequent layers being underneath it.
-     * <p>Sprites are somewhat more complicated. Each sprite has a priority,
-     * which represents which layer the sprite is placed above or below.
-     * Within each priority, the most recently added sprite is drawn first.
      */
     public Mode0()
     {
@@ -52,16 +49,7 @@ public class Mode0 implements ViewMode
     }
     
     /**
-     * Add a sprite.
-     * <p>The priority specifies both the layer painted on, as well as the
-     * relation between all other sprites. The sprite is painted on
-     * floor(priority), meaning that priorities of 0, 0.1, and 0.99999 would
-     * all be painted on layer 0. 
-     * <p>The full value represents the ordering
-     * each sprite should be processed. Sprites within a layer are painted so
-     * sprites with higher values are painted above those with lower values. In
-     * keeping with the example above, priority 0 would be painted below 0.1, and
-     * both would be painted below 0.9999.
+     * Add a Paintable.
      * @param paint The Paintable representing the sprite.
      * @param priority The priority of this sprite.
      * @return The PaintProperties of the newly added sprite.
@@ -83,7 +71,7 @@ public class Mode0 implements ViewMode
      * returns true.
      * @param paint The sprite to remove. 
      */
-    public void removeSprite(Paintable paint)
+    public void removePaintable(Paintable paint)
     {
         int index = 0;
         for(PaintProperties sprite : sprites)
