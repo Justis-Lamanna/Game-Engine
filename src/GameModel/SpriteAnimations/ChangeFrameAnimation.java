@@ -9,7 +9,7 @@ import GameView.FramedSprite;
 import GameView.Paintable;
 
 /**
- *
+ * An animation where a sprite's frame is changed.
  * @author Justis
  */
 public class ChangeFrameAnimation implements Animation

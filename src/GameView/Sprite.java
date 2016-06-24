@@ -96,4 +96,16 @@ public class Sprite implements Paintable
     @Override
     public BufferedImage getImage() {return img;}
     
+    /**
+     * Set this sprite's image.
+     * If the image provided is null, nothing changes.
+     * @param newImage The new image.
+     */
+    @Override
+    public void setImage(BufferedImage newImage)
+    {
+        if(newImage != null)
+            img = newImage;
+    }
+    
 }

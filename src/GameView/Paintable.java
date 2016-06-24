@@ -44,4 +44,10 @@ public interface Paintable
      * @return The image that represents this object.
      */
     BufferedImage getImage();
+    
+    /**
+     * Set the image of this Paintable item.
+     * @param newImage The image that represents this object.
+     */
+    void setImage(BufferedImage newImage);
 }
