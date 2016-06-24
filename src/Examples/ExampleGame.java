@@ -3,22 +3,24 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameModel;
+package Examples;
 
 import GameController.KeyController;
+import GameModel.AbstractGame;
+import GameModel.GameTask;
 import GameModel.SpriteAnimations.AnimateTask;
 import GameModel.SpriteAnimations.Animation;
 import GameModel.SpriteAnimations.ChangeFrameAnimation;
 import GameModel.SpriteAnimations.NoAnimation;
 import GameModel.SpriteAnimations.SetPositionAnimation;
 import GameModel.SpriteAnimations.ShiftPositionAnimation;
+import GameModel.WaitTask;
 import GameView.FramedSprite;
 import GameView.GameMode.Mode0;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

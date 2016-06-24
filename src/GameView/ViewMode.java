@@ -5,7 +5,6 @@
  */
 package GameView;
 
-import GameModel.GameModel;
 import java.awt.image.BufferedImage;
 
 /**

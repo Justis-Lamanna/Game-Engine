@@ -21,9 +21,9 @@ public class Mode0 implements ViewMode
     private static final int WIDTH = 240;
     private static final int HEIGHT = 160;
     
-    private final PaintProperties[] layers;
-    private final SortedList<PaintProperties> sprites;
-    private GameModel game;
+    protected final PaintProperties[] layers;
+    protected final SortedList<PaintProperties> sprites;
+    protected GameModel game;
     
     /**
      * Creates a Mode0 instance.

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package GameView.TestMode;
+package Examples;
 
 import GameView.ViewMode;
 import java.awt.Color;
