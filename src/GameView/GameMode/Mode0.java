@@ -114,11 +114,54 @@ public class Mode0 implements ViewMode
         Graphics2D gfx = frame.createGraphics();
         for(PaintProperties sprite : sprites)
         {
-            if(sprite.isVisible()){
-                Paintable spriteP = sprite.getPaintable();
-                gfx.drawImage(spriteP.getImage(), new RenderOp(sprite), spriteP.getX(), spriteP.getY());
-            }
+            paint(frame, sprite);
         }
         return frame;
+    }
+    
+    private void paint(BufferedImage bg, PaintProperties p)
+    {
+        if(p.isVisible())
+        {
+            Paintable paint = p.getPaintable();
+            int drawX = paint.getX();
+            int drawY = paint.getY();
+            BufferedImage image = paint.getImage();
+            for(int xx = 0; xx < image.getWidth(); xx++)
+            {
+                for(int yy = 0; yy < image.getHeight(); yy++)
+                {
+                    int thisX = drawX + xx;
+                    int thisY = drawY + yy;
+                    if(p.isWrapped()){
+                        thisX = Math.floorMod(thisX, bg.getWidth());
+                        thisY = Math.floorMod(thisY, bg.getHeight());
+                    }
+                    else if(thisX < 0 || thisX >= bg.getWidth() || thisY < 0 || thisY >= bg.getHeight()){
+                            continue;
+                    }
+                    int paintRGB = image.getRGB(xx, yy);
+                    if(paintRGB == p.getTransparentRGB()){
+                        paintRGB = 0;
+                    }
+                    int bgRGB = bg.getRGB(thisX, thisY);
+                    bg.setRGB(thisX, thisY, blend(bgRGB, paintRGB));
+                }
+            }
+        }
+    }
+    
+    private int blend(int bottomColor, int topColor)
+    {
+        double dstA = (bottomColor >>> 24) / 255f, srcA = (topColor >>> 24) / 255f;
+        int dstR = (bottomColor >>> 16 & 0xFF), srcR = (topColor >>> 16 & 0xFF);
+        int dstG = (bottomColor >>> 8  & 0xFF), srcG = (topColor >>> 8  & 0xFF);
+        int dstB = (bottomColor        & 0xFF), srcB = (topColor        & 0xFF);
+        double a = (srcA + dstA * (1 - srcA));
+        if(a == 0){return 0;}
+        int r = (int)((srcR * srcA + dstR * dstA * (1 - srcA)) / a);
+        int g = (int)((srcG * srcA + dstG * dstA * (1 - srcA)) / a);
+        int b = (int)((srcB * srcA + dstB * dstA * (1 - srcA)) / a);
+        return ((int)(a * 255) << 24) | (r << 16) | (g << 8) | b;
     }
 }

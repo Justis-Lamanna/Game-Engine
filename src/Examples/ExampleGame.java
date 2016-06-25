@@ -85,10 +85,11 @@ public class ExampleGame extends AbstractGame
         scheduleTask("Controller", new WaitTask(UPDATE_CONTROLLER, 5), Double.NEGATIVE_INFINITY); //Updating the controller is a task too. It executes every five frames here, and has the highest possible priority so it goes first.
         //[Creating an animated sprite]
         Sprite bg = new Sprite(0, 0, imageMap.get("rayquaza"));
-        mode.addPaintable(bg, 0);
+        mode.addPaintable(bg, 0).setWrapped(true);
         FramedSprite sprite = new FramedSprite(50, 50, imageMap.get("ManectricRunning"), 4);
         mode.addPaintable(sprite, 0.5);
         scheduleTask("ManectricAnim", new AnimateTask(sprite, animationMap.get("ManectricRunning"), 0.33, true), 2); //Animations are tasks too.
+        scheduleTask("BGScroll", new AnimateTask(bg, animationMap.get("ManectricSliding"), 0.33, true), 2);
         //[The game logic]
         scheduleTask("SpeedUpTask", new ChangeSpeedTask(), 2); //Game logic is a task.
     }

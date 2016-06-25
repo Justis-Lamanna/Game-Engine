@@ -76,19 +76,6 @@ public abstract class AbstractGame implements GameModel
     
     /**
      * Add a task to the task pool.
-     * <p>If the task provided is null, nothing happens.
-     * @param task The task to add to the pool.
-     * @param priority The priority of the task.
-     */
-    public void addTask(GameTask task, double priority)
-    {
-        if(task != null){
-            tasks.add(new GameTaskPrio(task, priority));
-        }
-    }
-    
-    /**
-     * Add a task to the task pool.
      * <p>If the task or the name provided is null, nothing happens.
      * @param name The name of the task.
      * @param task The task to add to the pool.
@@ -100,20 +87,6 @@ public abstract class AbstractGame implements GameModel
             GameTaskPrio pTask = new GameTaskPrio(task, priority);
             tasks.add(pTask);
             taskMap.put(name, pTask);
-        }
-    }
-    
-    /**
-     * Remove a task from the task pool.
-     * @param task The task to remove from the pool.
-     */
-    public void removeTask(GameTask task)
-    {
-        Iterator<GameTaskPrio> iter = tasks.iterator();
-        while(iter.hasNext())
-        {
-            GameTaskPrio gt = iter.next();
-            if(gt.task.equals(task)){iter.remove(); break;}
         }
     }
     
@@ -133,23 +106,6 @@ public abstract class AbstractGame implements GameModel
      * this method, it is added to the pool after all the tasks in the pool
      * have been run through.
      * <p>If a null task is provided, nothing happens.
-     * @param task The task to schedule.
-     * @param priority The priority of the task.
-     */
-    public void scheduleTask(GameTask task, double priority)
-    {
-        if(task != null){
-            scheduledTasks.add(new GameTaskPrio(task, priority));
-        }
-    }
-    
-    /**
-     * Schedules a task to be added to the task pool.
-     * <p>When tasks are being executed, it can be a little iffy adding
-     * tasks to the pool through addTask. When a task is scheduled through
-     * this method, it is added to the pool after all the tasks in the pool
-     * have been run through.
-     * <p>If a null task is provided, nothing happens.
      * @param name The name of the task.
      * @param task The task to schedule.
      * @param priority The priority of the task.
@@ -160,25 +116,6 @@ public abstract class AbstractGame implements GameModel
             GameTaskPrio pTask = new GameTaskPrio(task, priority);
             scheduledTasks.add(pTask);
             taskMap.put(name, pTask);
-        }
-    }
-    
-    /**
-     * Enable or disable a task.
-     * @param task The task to enable/disable.
-     * @param enable True to enable the task, false if to disable.
-     */
-    public void setTaskEnabled(GameTask task, boolean enable)
-    {
-        Iterator<GameTaskPrio> iter = tasks.iterator();
-        while(iter.hasNext())
-        {
-            GameTaskPrio gt = iter.next();
-            if(gt.task.equals(task))
-            {
-                gt.disable = !enable;
-                return;
-            }
         }
     }
     
